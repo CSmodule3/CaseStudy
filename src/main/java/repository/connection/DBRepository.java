@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+
+
 public class DBRepository {
     private static final String jdbcURL = "jdbc:mysql://localhost:3306/bookstoredb";
     private static final String jdbcUsername = "root";
@@ -22,30 +24,26 @@ public class DBRepository {
         }
     }
 
-
     static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("Không tìm thấy MySQL Driver", e);
+            connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+y
         }
     }
 
     public static Connection getConnection() {
         try {
-            return DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
-        } catch (SQLException e) {
-            throw new RuntimeException("Lỗi khi lấy kết nối", e);
-        }
-    }
 
-    public static void closeConnection(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException("Lỗi đóng kết nối", e);
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return connection;
+
     }
 }

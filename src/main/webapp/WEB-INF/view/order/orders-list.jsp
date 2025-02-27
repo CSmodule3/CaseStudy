@@ -1,15 +1,21 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.OrderDetail" %>
+
+<%@ page import="service.impl.order.OrderService" %>
+
 <%@ page import="service.impl.OrderDetail.OrderDetailService" %>
 <%@ page import="repository.connection.DBRepository" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <%
-  OrderDetailService orderDetailService = new OrderDetailService(DBRepository.getConnection());
+
+  OrderDetailService orderDetailService = new OrderDetailService(repository.connection.DBRepository.getConnection());
+
   List<OrderDetail> orderDetails = orderDetailService.getAll();
   request.setAttribute("orderDetails", orderDetails);
 %>
+
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -24,6 +30,7 @@
     .status-processing { color: #ffc107; font-weight: bold; }
     .status-delivered { color: #28a745; font-weight: bold; }
     .status-cancelled { color: #dc3545; font-weight: bold; }
+
     .search-box {
       display: flex;
       align-items: center;
@@ -59,61 +66,8 @@
   <div class="card shadow p-4">
     <div class="row mb-3">
       <div class="col-md-6">
-        <!-- Ô tìm kiếm -->
-        <div class="search-bar">
-          <input type="text" class="search-input" placeholder="Tìm kiếm theo tên khách hàng...">
-          <button class="search-btn">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
 
-        <!-- Nhúng Font Awesome để có icon -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-        <!-- CSS ngay bên dưới -->
-        <style>
-          /* Ô tìm kiếm */
-          .search-bar {
-            display: flex;
-            align-items: center;
-            border-radius: 5px;
-            overflow: hidden;
-            background-color: #FFA500;
-            max-width: 500px;
-            margin: auto;
-            padding: 5px;
-          }
-
-          .search-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: none;
-            outline: none;
-            font-size: 14px;
-            background-color: #fff;
-            border-top-left-radius: 5px;
-            border-bottom-left-radius: 5px;
-          }
-
-          .search-btn {
-            background-color: #FFA500;
-            border: none;
-            padding: 10px 15px;
-            color: white;
-            cursor: pointer;
-            border-top-right-radius: 5px;
-            border-bottom-right-radius: 5px;
-            transition: background 0.3s ease;
-          }
-
-          .search-btn:hover {
-            background-color: #ff8c00;
-          }
-
-          .search-btn i {
-            font-size: 18px;
-          }
-        </style>
+        <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo tên khách hàng...">
 
       </div>
       <div class="col-md-3">
@@ -129,14 +83,15 @@
     <table class="table table-striped table-bordered">
       <thead class="table-dark">
       <tr>
-        <th>ID</th>
-        <th>Order ID</th>
+
         <th>Book ID</th>
-        <th>Số lượng</th>
         <th>Khách Hàng</th>
+        <th>Email</th>
         <th>Số Điện Thoại</th>
         <th>Địa Chỉ</th>
         <th>Ghi chú</th>
+        <th>Giá</th>
+
         <th>Phương Thức Thanh Toán</th>
         <th>Trạng Thái</th>
         <th>Hành Động</th>
@@ -146,15 +101,19 @@
       <c:forEach var="orderDetail" items="${orderDetails}">
         <tr>
           <td>${orderDetail.id}</td>
-          <td>${orderDetail.orderId}</td>
+
           <td>${orderDetail.bookId}</td>
-          <td>${orderDetail.quantity}</td>
           <td>${orderDetail.fullName}</td>
+          <td>${orderDetail.email}</td>
+
           <td>${orderDetail.phoneNumber}</td>
           <td>
               ${orderDetail.street}, ${orderDetail.ward}, ${orderDetail.district}, ${orderDetail.provinceCity}
           </td>
           <td>${orderDetail.noteOrder}</td>
+
+          <td>${orderDetail.price}</td>
+
           <td>${orderDetail.paymentMethod}</td>
           <td>
             <span class="${orderDetail.status eq 'Đang xử lý' ? 'status-processing'
@@ -173,7 +132,9 @@
               Sửa
             </button>
 
-            <a href="ordersList?action=delete&id=${orderDetail.id}" class="btn btn-danger btn-sm"
+
+            <a href="orderDetails?action=delete&id=${orderDetail.id}" class="btn btn-danger btn-sm"
+
                onclick="return confirm('Bạn có chắc chắn muốn xóa chi tiết đơn hàng này?')">
               Xóa
             </a>
@@ -184,6 +145,61 @@
     </table>
   </div>
 </div>
+
+
+<!-- Modal Chỉnh Sửa Đơn Hàng -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editOrderLabel">Chỉnh Sửa Chi Tiết Đơn Hàng</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="orderDetails?action=update" method="post">
+      <input type="hidden" name="id" id="orderId">
+      <div class="mb-3">
+        <label class="form-label">Tên Khách Hàng</label>
+        <input type="text" name="fullName" id="orderName" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Số Điện Thoại</label>
+        <input type="text" name="phoneNumber" id="orderPhone" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Địa Chỉ</label>
+        <input type="text" name="address" id="orderAddress" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Trạng Thái</label>
+        <select name="status" id="orderStatus" class="form-select">
+          <option value="Đang xử lý">Đang xử lý</option>
+          <option value="Đã giao">Đã giao</option>
+          <option value="Đã hủy">Đã hủy</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Cập Nhật</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+      </div>
+    </form>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.editBtn').forEach(button => {
+    button.addEventListener('click', function() {
+      document.getElementById('orderId').value = this.dataset.id;
+      document.getElementById('orderName').value = this.dataset.name;
+      document.getElementById('orderPhone').value = this.dataset.phone;
+      document.getElementById('orderAddress').value = this.dataset.address;
+      document.getElementById('orderStatus').value = this.dataset.status;
+
+      new bootstrap.Modal(document.getElementById('editOrderModal')).show();
+    });
+  });
+</script>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -196,20 +212,21 @@
       let selectedStatus = statusFilter.value.toLowerCase();
 
       rows.forEach(row => {
+
         let customerName = row.cells[4].textContent.toLowerCase();
         let statusText = row.cells[9].textContent.toLowerCase();
-
         let matchesSearch = customerName.includes(searchValue);
         let matchesStatus = selectedStatus === "" || statusText.includes(selectedStatus);
 
         row.style.display = matchesSearch && matchesStatus ? "" : "none";
       });
     }
-
     searchInput.addEventListener("keyup", filterTable);
+
     statusFilter.addEventListener("change", filterTable);
   });
 </script>
+
 
 </body>
 </html>

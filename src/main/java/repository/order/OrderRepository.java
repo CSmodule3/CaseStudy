@@ -10,31 +10,30 @@ import java.util.List;
 
 public class OrderRepository {
 
-    public static List<OrderDetail> findAllOrderDetails() {
+    public List<OrderDetail> findAllOrderDetails() {
         List<OrderDetail> orderDetails = new ArrayList<>();
-        try {
-            Statement statement = DBRepository.getConnection().createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT od.*, o.status FROM order_details od JOIN orders o ON od.order_id = o.id");
+        String query = "SELECT od.*, o.status FROM order_details od " +
+                "JOIN orders o ON od.order_id = o.id";
+        try (Connection conn = DBRepository.getConnection();
+             Statement statement = conn.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                int orderId = resultSet.getInt("order_id");
-                int bookId = resultSet.getInt("book_id");
-                int quantity = resultSet.getInt("quantity");
-                String fullName = resultSet.getString("full_name");
-                String phoneNumber = resultSet.getString("phone_number");
-                String provinceCity = resultSet.getString("province_city");
-                String district = resultSet.getString("district");
-                String ward = resultSet.getString("ward");
-                String street = resultSet.getString("street");
-                String noteOrder = resultSet.getString("note_order");
-                String paymentMethod = resultSet.getString("payment_method");
-                String status = resultSet.getString("status"); // Lấy trạng thái đơn hàng
-
-                orderDetails.add(new OrderDetail(id, orderId, bookId, quantity,
-                        fullName, phoneNumber, provinceCity,
-                        district, ward, street, noteOrder,
-                        paymentMethod, status));
+                orderDetails.add(new OrderDetail(
+                        resultSet.getInt("id"),
+                        resultSet.getInt("order_id"),
+                        resultSet.getInt("book_id"),
+                        resultSet.getInt("quantity"),
+                        resultSet.getString("full_name"),
+                        resultSet.getString("phone_number"),
+                        resultSet.getString("province_city"),
+                        resultSet.getString("district"),
+                        resultSet.getString("ward"),
+                        resultSet.getString("street"),
+                        resultSet.getString("note_order"),
+                        resultSet.getString("payment_method"),
+                        resultSet.getString("status")
+                ));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi khi lấy danh sách chi tiết đơn hàng", e);
@@ -42,18 +41,17 @@ public class OrderRepository {
         return orderDetails;
     }
 
-    private final String url = "jdbc:mysql://localhost:3306/bookstore";
-    private final String user = "root";
-    private final String password = "159357bapD";
-
-    public List<Order> getAllOrders() {
+    public List<Order> findAllOrders() {
         List<Order> orders = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Orders")) {
-            ResultSet rs = stmt.executeQuery();
+        String query = "SELECT * FROM orders";
+        try (Connection conn = DBRepository.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+
             while (rs.next()) {
                 orders.add(new Order(
                         rs.getInt("id"),
+                        rs.getInt("book_id"),
                         rs.getInt("customer_id"),
                         rs.getTimestamp("order_date").toLocalDateTime(),
                         rs.getDouble("total_price"),
@@ -61,69 +59,95 @@ public class OrderRepository {
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi lấy danh sách đơn hàng", e);
         }
         return orders;
     }
 
+    public Order findOrderById(int id) {
+        Order order = null;
+        String query = "SELECT * FROM orders WHERE id = ?";
+        try (Connection conn = DBRepository.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-    public OrderDetail getOrderById(int id) {
-        OrderDetail order = null;
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM Orders WHERE id = ?")) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
-                order = new OrderDetail(
+                order = new Order(
                         rs.getInt("id"),
-                        rs.getInt("order_id"),  // Thêm order_id
-                        rs.getInt("book_id"),   // Thêm book_id
-                        rs.getInt("quantity"),
-                        rs.getString("fullName"),
-                        rs.getString("phoneNumber"),
-                        rs.getString("provinceCity"), // Thêm thông tin địa chỉ
-                        rs.getString("district"),
-                        rs.getString("ward"),
-                        rs.getString("street"),
-                        rs.getString("noteOrder"),
-                        rs.getString("paymentMethod"),
+                        rs.getInt("book_id"),
+                        rs.getInt("customer_id"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDouble("total_price"),
                         rs.getString("status")
                 );
             }
-
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi lấy đơn hàng theo ID", e);
         }
         return order;
     }
 
     public void deleteOrder(int id) {
-        try (Connection conn = DriverManager.getConnection(url, user, password);
-             PreparedStatement stmt = conn.prepareStatement("DELETE FROM Orders WHERE id = ?")) {
+        String query = "DELETE FROM orders WHERE id = ?";
+        try (Connection conn = DBRepository.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setInt(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi xóa đơn hàng", e);
         }
     }
 
-    public void update(int id, OrderDetail orderDetail) {
-        String sql = "UPDATE Order_Details SET full_name = ?, phone_number = ?, address = ?, status = ? WHERE id = ?";
+    public void updateOrderDetail(int id, OrderDetail orderDetail) {
+        String query = "UPDATE order_details SET full_name = ?, phone_number = ?, " +
+                "province_city = ?, district = ?, ward = ?, street = ?, " +
+                "note_order = ?, payment_method = ?, status = ? WHERE id = ?";
 
         try (Connection conn = DBRepository.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, orderDetail.getFullName());
             stmt.setString(2, orderDetail.getPhoneNumber());
-            stmt.setString(3, orderDetail.getAddress());
-            stmt.setString(4, orderDetail.getStatus());
-            stmt.setInt(5, id);
+            stmt.setString(3, orderDetail.getProvinceCity());
+            stmt.setString(4, orderDetail.getDistrict());
+            stmt.setString(5, orderDetail.getWard());
+            stmt.setString(6, orderDetail.getStreet());
+            stmt.setString(7, orderDetail.getNoteOrder());
+            stmt.setString(8, orderDetail.getPaymentMethod());
+            stmt.setString(9, orderDetail.getStatus());
+            stmt.setInt(10, id);
 
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Lỗi khi cập nhật chi tiết đơn hàng", e);
         }
     }
 
+    public static Order findById(int id) {
+        String sql = "SELECT * FROM Orders WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/bookstoredb", "root", "admin4320");
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return new Order(
+                        rs.getInt("id"),
+                        rs.getInt("book_id"),
+                        rs.getInt("customer_id"),
+                        rs.getTimestamp("order_date").toLocalDateTime(),
+                        rs.getDouble("total_price"),
+                        rs.getString("status")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Trả về null nếu không tìm thấy đơn hàng
+    }
 
 }

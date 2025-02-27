@@ -23,6 +23,7 @@ public class OrderDAO {
             while (rs.next()) {
                 Order order = new Order(
                         rs.getInt("id"),
+                        rs.getInt("book_id"),
                         rs.getInt("customer_id"),
                         rs.getTimestamp("order_date").toLocalDateTime(),
                         rs.getDouble("total_price"),
@@ -68,6 +69,7 @@ public class OrderDAO {
             if (rs.next()) {
                 return new Order(
                         rs.getInt("id"),
+                        rs.getInt("book_id"),
                         rs.getInt("customer_id"),
                         rs.getTimestamp("order_date").toLocalDateTime(),
                         rs.getDouble("total_price"),
@@ -90,6 +92,7 @@ public class OrderDAO {
             while (rs.next()) {
                 Order order = new Order(
                         rs.getInt("id"),
+                        rs.getInt("book_id"),
                         rs.getInt("customer_id"),
                         rs.getTimestamp("order_date").toLocalDateTime(),
                         rs.getDouble("total_price"),

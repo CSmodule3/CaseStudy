@@ -18,6 +18,7 @@
 <h2 class="text-center">Danh sách Người Dùng</h2>
 
 <!-- Form tìm kiếm -->
+
 <!-- Form tìm kiếm với class để áp dụng CSS -->
 <form class="search-bar" action="users" method="get">
   <input class="search-input" type="text" name="search" placeholder="Nhập tên người dùng..."
@@ -71,6 +72,7 @@
 </style>
 
 
+
 <table class="table table-bordered">
   <thead class="table-dark">
   <tr>
@@ -78,6 +80,7 @@
     <th>Username</th>
     <th>Email</th>
     <th>Role ID</th>
+
     <th>Trạng thái</th> <!-- Thêm cột trạng thái -->
     <th>Hành động</th>
   </tr>
@@ -90,6 +93,7 @@
     <td><%= u.getEmail() %></td>
     <td><%= u.getRoleId() %></td>
     <td>
+
       <% if (u.getStatus() == 1) { %>
       <span class="badge bg-success">Hoạt động</span>
       <% } else { %>
@@ -104,6 +108,7 @@
         <input type="hidden" name="id" value="<%= u.getId() %>">
         <input type="hidden" name="action" value="delete">
         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn ẩn người dùng này?')">Ẩn</button>
+
       </form>
     </td>
   </tr>
@@ -160,3 +165,4 @@
 
 </body>
 </html>
+

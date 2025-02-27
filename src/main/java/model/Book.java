@@ -8,10 +8,30 @@ public class Book {
     private int stockQuantity;
     private String imageURL;
     private String bookDescription;
+    private int status;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public Book(int id, String title, String author, double price, int stockQuantity, String imageURL, String bookDescription, int status) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.imageURL = imageURL;
+        this.bookDescription = bookDescription;
+        this.status = status;
+    }
 
     public Book() {}
 
-    public Book(int id, String title, String author, double price, int stockQuantity, String imageURL,String bookDescription) {
+    public Book(int id, String title, String author, double price, String imageURL, int stockQuantity,String bookDescription) {
         this.id = id;
         this.title = title;
         this.author = author;

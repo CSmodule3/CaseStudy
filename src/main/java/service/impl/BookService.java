@@ -1,7 +1,11 @@
 package service.impl;
 
 import model.Book;
+
+import model.Order;
+
 import model.User;
+
 import repository.book.BookRepository;
 import service.IBookService;
 import service.IService;
@@ -26,6 +30,33 @@ public class BookService implements IService<Book>, IBookService {
     }
 
     @Override
+    public void update(int id, Order o) {
+
+    }
+
+    @Override
+    public Book findById(int id) {
+        return bookRepository.findById(id);
+    }
+
+
+    @Override
+    public List<Book> findByName(String name) {
+        return bookRepository.findByName(name);
+    }
+
+    @Override
+    public void add(Book book) {
+
+    }
+
+    @Override
+    public List<Book> findByAuthor(String name) {
+        return bookRepository.findByAuthor(name);
+    }
+
+    @Override
+
     public void update(int id, User user) {
 
     }
@@ -43,6 +74,7 @@ public class BookService implements IService<Book>, IBookService {
     @Override
     public User login(String userName, String password) {
         return null;
+
     }
 
     @Override

@@ -1,5 +1,7 @@
 package repository.user;
 
+
+
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import repository.connection.DBRepository;
@@ -25,6 +27,7 @@ public class UserRepository {
     private static final String UPDATE_USER_STATUS =
             "UPDATE users SET status = ? WHERE id = ?"; // Dùng cho xóa hoặc khôi phục
 
+
     public void saveUser(User user) {
         try (Connection connection = DBRepository.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
@@ -44,8 +47,10 @@ public class UserRepository {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
 
+
         try (Connection conn = DBRepository.getConnection();
              PreparedStatement stmt = conn.prepareStatement(GET_ALL_USERS);
+
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -118,3 +123,4 @@ public class UserRepository {
         }
     }
 }
+

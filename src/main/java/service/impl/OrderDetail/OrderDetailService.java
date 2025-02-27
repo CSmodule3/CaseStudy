@@ -1,6 +1,7 @@
 package service.impl.OrderDetail;
 
 import dao.OrderDetailDAO;
+import model.Order;
 import model.OrderDetail;
 import model.User;
 import repository.connection.DBRepository;
@@ -34,6 +35,7 @@ public class OrderDetailService implements IService<OrderDetail> {
     }
 
     @Override
+
     public void update(int id, User user) {
 
     }
@@ -49,6 +51,11 @@ public class OrderDetailService implements IService<OrderDetail> {
     }
 
     @Override
+
+    public void add(OrderDetail orderDetail) {
+        orderDetailDAO.add(orderDetail);
+    }
+
     public User login(String userName, String password) {
         return null;
     }

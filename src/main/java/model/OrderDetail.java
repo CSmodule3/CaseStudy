@@ -6,12 +6,62 @@ public class OrderDetail {
     private int bookId;
     private int quantity;
     private String fullName;
+    private String email;
+
+    public OrderDetail(int bookId, String fullName, String email, String phoneNumber, String provinceCity, String ward, String district, String street, String noteOrder, Double price, String paymentMethod) {
+        this.bookId = bookId;
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.provinceCity = provinceCity;
+        this.ward = ward;
+        this.district = district;
+        this.street = street;
+        this.noteOrder = noteOrder;
+        this.price = price;
+        this.paymentMethod = paymentMethod;
+    }
+
     private String phoneNumber;
     private String provinceCity;
     private String district;
     private String ward;
     private String street;
     private String noteOrder;
+    private double price;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public OrderDetail(int id, int bookId, String fullName, String email, String phoneNumber, String provinceCity, String district, String ward, String street, String noteOrder, Double price, String paymentMethod, String status) {
+        this.id = id;
+        this.bookId = bookId;
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.provinceCity = provinceCity;
+        this.district = district;
+        this.ward = ward;
+        this.street = street;
+        this.noteOrder = noteOrder;
+        this.price = price;
+        this.paymentMethod = paymentMethod;
+        this.status = status;
+    }
+
     private String paymentMethod;
     private String status; // Thêm trạng thái
 
