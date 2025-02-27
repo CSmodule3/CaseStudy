@@ -1,12 +1,15 @@
+
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page import="model.Book" %>
 <%@ page import="java.util.List" %><%--
+
   Created by IntelliJ IDEA.
   User: DacHaiPham
   Date: 2/13/2025
   Time: 7:26 PM
   To change this template use File | Settings | File Templates.
 --%>
+
 <%
     String idParam = request.getParameter("id");
     int bookId = 0; // Giá trị mặc định nếu id bị null
@@ -36,6 +39,7 @@
     book.setPrice(bookPrice);
 %>
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -45,8 +49,10 @@
     <title>Thanh toán</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
 
 
     <style>
@@ -161,6 +167,7 @@
         .payment:hover {
             color: darkorange; /* Màu cam đậm khi hover */
         }
+
         /* Điều chỉnh chiều rộng ảnh */
         .card img {
             max-width: 100px; /* Giới hạn chiều rộng ảnh */
@@ -413,11 +420,13 @@
 
     </style>
 
+
 </head>
 <body>
 
 <!-- Thanh Navbar -->
 <header class="custom-header">
+
     <div class="container1">
         <!-- Logo -->
         <div>
@@ -470,6 +479,8 @@
                 <i class="bi bi-cart-fill"></i>
                 <span>Thanh toán</span>
             </a>
+
+   
         </div>
     </div>
 </header>
@@ -485,39 +496,46 @@
                 <div class="mb-3">
                     <label class="form-label">Họ tên *</label>
                     <input type="text" class="form-control" name="fullName" required>
+
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Email *</label>
+
                         <input type="email" class="form-control" name="email" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Số điện thoại *</label>
                         <input type="text" class="form-control" name="phoneNumber" required>
+
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tỉnh/Thành phố *</label>
+
                         <input type="text" class="form-control" name="provinceCity" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Quận/Huyện *</label>
                         <input type="text" class="form-control" name="district" required>
+
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">Phường/Xã/Thị trấn *</label>
+
                         <input type="text" class="form-control" name="ward" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Số nhà, Tên đường</label>
                         <input type="text" class="form-control" name="street">
+
                     </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Ghi chú</label>
+
                     <textarea class="form-control" name="noteOrder" rows="3"></textarea>
                 </div>
                 <div class="col-md-4">
@@ -562,10 +580,10 @@
 </div>
 
 
-
 <footer class="bg-light text-center py-3 mt-4">
     <p class="mb-0">© 2024 Cửa hàng của bạn. All Rights Reserved.</p>
 </footer>
+
 
 <script>
     function toggleDropdown() {
@@ -573,6 +591,7 @@
         menu.classList.toggle("show");
     }
 </script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,13 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.OrderDetail" %>
+
 <%@ page import="service.impl.order.OrderService" %>
+
 <%@ page import="service.impl.OrderDetail.OrderDetailService" %>
 <%@ page import="repository.connection.DBRepository" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <%
+
   OrderDetailService orderDetailService = new OrderDetailService(repository.connection.DBRepository.getConnection());
+
   List<OrderDetail> orderDetails = orderDetailService.getAll();
   request.setAttribute("orderDetails", orderDetails);
 %>
@@ -26,6 +30,32 @@
     .status-processing { color: #ffc107; font-weight: bold; }
     .status-delivered { color: #28a745; font-weight: bold; }
     .status-cancelled { color: #dc3545; font-weight: bold; }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      border: 2px solid #ffa500;
+      border-radius: 5px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .search-box input {
+      border: none;
+      flex-grow: 1;
+      padding: 8px;
+      outline: none;
+    }
+    .search-box button {
+      background-color: #ffa500;
+      border: none;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-box button i {
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -36,7 +66,9 @@
   <div class="card shadow p-4">
     <div class="row mb-3">
       <div class="col-md-6">
+
         <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo tên khách hàng...">
+
       </div>
       <div class="col-md-3">
         <select id="statusFilter" class="form-select">
@@ -51,7 +83,7 @@
     <table class="table table-striped table-bordered">
       <thead class="table-dark">
       <tr>
-        <th>ID</th>
+
         <th>Book ID</th>
         <th>Khách Hàng</th>
         <th>Email</th>
@@ -59,6 +91,7 @@
         <th>Địa Chỉ</th>
         <th>Ghi chú</th>
         <th>Giá</th>
+
         <th>Phương Thức Thanh Toán</th>
         <th>Trạng Thái</th>
         <th>Hành Động</th>
@@ -68,15 +101,19 @@
       <c:forEach var="orderDetail" items="${orderDetails}">
         <tr>
           <td>${orderDetail.id}</td>
+
           <td>${orderDetail.bookId}</td>
           <td>${orderDetail.fullName}</td>
           <td>${orderDetail.email}</td>
+
           <td>${orderDetail.phoneNumber}</td>
           <td>
               ${orderDetail.street}, ${orderDetail.ward}, ${orderDetail.district}, ${orderDetail.provinceCity}
           </td>
           <td>${orderDetail.noteOrder}</td>
+
           <td>${orderDetail.price}</td>
+
           <td>${orderDetail.paymentMethod}</td>
           <td>
             <span class="${orderDetail.status eq 'Đang xử lý' ? 'status-processing'
@@ -95,7 +132,9 @@
               Sửa
             </button>
 
+
             <a href="orderDetails?action=delete&id=${orderDetail.id}" class="btn btn-danger btn-sm"
+
                onclick="return confirm('Bạn có chắc chắn muốn xóa chi tiết đơn hàng này?')">
               Xóa
             </a>
@@ -106,6 +145,7 @@
     </table>
   </div>
 </div>
+
 
 <!-- Modal Chỉnh Sửa Đơn Hàng -->
 <div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderLabel" aria-hidden="true">
@@ -160,6 +200,7 @@
     });
   });
 </script>
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
@@ -171,20 +212,17 @@
       let selectedStatus = statusFilter.value.toLowerCase();
 
       rows.forEach(row => {
-        let customerName = row.cells[4].textContent.toLowerCase(); // Tên khách hàng
-        let statusText = row.cells[9].textContent.toLowerCase(); // Trạng thái đơn hàng
 
+        let customerName = row.cells[4].textContent.toLowerCase();
+        let statusText = row.cells[9].textContent.toLowerCase();
         let matchesSearch = customerName.includes(searchValue);
         let matchesStatus = selectedStatus === "" || statusText.includes(selectedStatus);
 
         row.style.display = matchesSearch && matchesStatus ? "" : "none";
       });
     }
-
-    // Bắt sự kiện khi nhập vào ô tìm kiếm
     searchInput.addEventListener("keyup", filterTable);
 
-    // Bắt sự kiện khi chọn trạng thái
     statusFilter.addEventListener("change", filterTable);
   });
 </script>

@@ -1,6 +1,8 @@
 package service;
 
+
 import model.Order;
+
 import model.User;
 
 import java.util.List;
@@ -10,10 +12,15 @@ public interface IService<T> {
     void remove(int id);
     void update(int id, T t);
 
-    void update(int id, Order o);
+
+    // Cập nhật thông tin người dùng
+    void update(int id, User user);
 
     T findById(int id);
     List<T> findByName(String name);
-    void add(T t);
+
+
+    User login(String userName, String password);
+
 
 }

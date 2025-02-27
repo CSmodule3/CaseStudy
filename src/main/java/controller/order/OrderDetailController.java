@@ -91,8 +91,8 @@ public class OrderDetailController extends HttpServlet {
             case "create" :
                 insertOrderDetails(request,response);
                 break;
-
         }
+
     }
 
     private void updateOrderDetail(HttpServletRequest request, HttpServletResponse response)

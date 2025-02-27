@@ -17,6 +17,7 @@ public class BookController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
         String action = req.getParameter("type");
@@ -40,6 +41,7 @@ public class BookController extends HttpServlet {
         }
 
         req.setAttribute("books", books);
+
         req.getRequestDispatcher("WEB-INF/view/book/listBook.jsp").forward(req, resp);
     }
 

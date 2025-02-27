@@ -1,43 +1,56 @@
 package repository.user;
 
 
-import model.Role;
+
 import model.User;
+import org.mindrot.jbcrypt.BCrypt;
 import repository.connection.DBRepository;
 
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class UserRepository {
+    private static final Logger LOGGER = Logger.getLogger(UserRepository.class.getName());
+
+    private static final String INSERT_USER_SQL =
+            "INSERT INTO users (username, password, email, role_id, status) VALUES (?, ?, ?, ?, 1)";
+
     private static final String GET_USER_BY_USERNAME_PASSWORD =
-            "SELECT * FROM users WHERE username = ? AND password = ?";
-    private static final String INSERT_USER_SQL = "INSERT INTO user (username, password, email, roleId) VALUES (?, ?, ?, ?)";
+            "SELECT * FROM users WHERE username = ? AND status = 1"; // Chỉ lấy user chưa bị xóa
+
+    private static final String GET_ALL_USERS =
+            "SELECT id, username, email, role_id FROM users WHERE status = 1"; // Chỉ lấy user chưa bị xóa
+
+    private static final String UPDATE_USER_STATUS =
+            "UPDATE users SET status = ? WHERE id = ?"; // Dùng cho xóa hoặc khôi phục
+
 
     public void saveUser(User user) {
         try (Connection connection = DBRepository.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
+
+            String hashedPassword = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()); // Mã hóa mật khẩu
             preparedStatement.setString(1, user.getUsername());
-            preparedStatement.setString(2, user.getPassword()); // Lưu ý: Cần mã hóa mật khẩu
+            preparedStatement.setString(2, hashedPassword);
             preparedStatement.setString(3, user.getEmail());
             preparedStatement.setInt(4, user.getRoleId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Lỗi khi thêm user: ", e);
         }
     }
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String query = "SELECT id, username, email, role_id FROM users"; // Không lấy password
+
 
         try (Connection conn = DBRepository.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
+             PreparedStatement stmt = conn.prepareStatement(GET_ALL_USERS);
+
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -46,41 +59,68 @@ public class UserRepository {
                         rs.getString("username"),
                         null, // Không trả về mật khẩu
                         rs.getString("email"),
-                        rs.getInt("role_id")
+                        rs.getInt("role_id"),
+                        1 // Mặc định status = 1 vì chỉ lấy user chưa bị xóa
                 ));
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi lấy danh sách user: ", e);
         }
         return users;
     }
-    public User login(String username, String password) {
-        String query = "SELECT * FROM users WHERE username = ? AND password = ?";
 
+    public User login(String username, String password) {
         try (Connection connection = DBRepository.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(GET_USER_BY_USERNAME_PASSWORD)) {
 
             preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                return new User(
-                        resultSet.getInt("id"),
-                        resultSet.getString("username"),
-                        resultSet.getString("password"),
-                        resultSet.getString("email"),
-                        resultSet.getInt("role_id")
-                );
+                String storedPassword = resultSet.getString("password");
+
+                // So sánh mật khẩu đã mã hóa
+                if (BCrypt.checkpw(password, storedPassword)) {
+                    return new User(
+                            resultSet.getInt("id"),
+                            resultSet.getString("username"),
+                            null, // Không trả về mật khẩu
+                            resultSet.getString("email"),
+                            resultSet.getInt("role_id"),
+                            resultSet.getInt("status")
+                    );
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Lỗi khi đăng nhập: ", e);
         }
         return null;
     }
 
-}
+    // Xóa mềm user (Cập nhật status = 0)
+    public void removeUser(int userId) {
+        try (Connection connection = DBRepository.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_STATUS)) {
 
+            preparedStatement.setInt(1, 0); // status = 0 (Đánh dấu đã xóa)
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi xóa user: ", e);
+        }
+    }
+
+    // Khôi phục user (Cập nhật status = 1)
+    public void restoreUser(int userId) {
+        try (Connection connection = DBRepository.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_STATUS)) {
+
+            preparedStatement.setInt(1, 1); // status = 1 (Khôi phục)
+            preparedStatement.setInt(2, userId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Lỗi khi khôi phục user: ", e);
+        }
+    }
+}
 
