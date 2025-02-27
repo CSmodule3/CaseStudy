@@ -11,8 +11,21 @@
     Book book = new Book();
     book.setImageURL(request.getParameter("imageURL"));
     book.setTitle(request.getParameter("title"));
-    book.setPrice(Double.parseDouble(request.getParameter("price")));
+
+    String priceParam = request.getParameter("price");
+    double price = 0.0;
+
+    if (priceParam != null && !priceParam.trim().isEmpty()) {
+        try {
+            price = Double.parseDouble(priceParam);
+            book.setPrice(price);
+        } catch (NumberFormatException e) {
+            // Không đặt giá trị nếu lỗi
+        }
+    }
 %>
+
+
 <!DOCTYPE html>
 <html lang="vi">
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -58,6 +71,13 @@
 
         h4, h5 {
             color: #ff7f00 !important;
+        }
+
+        .custom-header {
+            background-color: white;
+            padding: 10px 0;
+            border-bottom: 2px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .header-logo {
@@ -226,11 +246,10 @@
     <!-- Nội dung chính -->
 <div class="container mt-4">
     <div class="row">
-
         <!-- Địa chỉ giao hàng -->
         <div class="col-md-8">
             <h4>Địa chỉ giao hàng</h4>
-            <form>
+            <form id="checkoutForm">
                 <div class="mb-3">
                     <label class="form-label">Họ tên *</label>
                     <input type="text" class="form-control" required>
@@ -238,22 +257,22 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Email *</label>
-                        <input type="email" class="form-control" required>
+                        <input type="email" class="form-control" id="email" required onblur="validateEmail()">
+                        <div class="text-danger" id="emailError"></div>
                     </div>
+
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Số điện thoại *</label>
-                        <input type="text" class="form-control" required>
+                        <input type="text" class="form-control" id="phone" required oninput="validatePhone()">
+                        <div class="text-danger" id="phoneError"></div>
                     </div>
+
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Tỉnh/Thành phố *</label>
                         <select id="city" class="form-select" onchange="updateDistricts()">
                             <option selected>-- Chọn thành phố --</option>
-                            <option value="hanoi">Hà Nội</option>
-                            <option value="hcm">TP. Hồ Chí Minh</option>
-                            <option value="danang">Đà Nẵng</option>
-                            <option value="hue">Huế</option>
                         </select>
                     </div>
                     <div class="col-md-6 mb-3">
@@ -282,6 +301,18 @@
             </form>
         </div>
 
+        <%
+            if (book == null || book.getTitle() == null || book.getImageURL() == null || book.getPrice() == 0.0) {
+        %>
+        <div class="col-md-4">
+            <h4>Giỏ hàng</h4>
+            <div class="card p-3 text-center">
+                <p>Giỏ hàng của bạn đang trống</p>
+            </div>
+        </div>
+        <%
+        } else {
+        %>
         <!-- Giỏ hàng -->
         <div class="col-md-4">
             <h4>Giỏ hàng</h4>
@@ -291,14 +322,19 @@
                     <div class="card-body">
                         <h5><%= book.getTitle() %></h5>
                         <p><strong>Trọng lượng:</strong> 300g</p>
-                        <p><strong>Vận chuyển:</strong> 30,000 VNĐ/p>
+                        <p><strong>Vận chuyển:</strong> 30,000 VNĐ/p</p>
                     </div>
                 </div>
                 <div class="card-footer">
-                    <p class="total-price">Tổng giá: <fmt:formatNumber value="${book.price}" type="number" pattern="#,##0.000" /> VND</p>
+                    <p class="total-price">
+                        Tổng giá: <fmt:formatNumber value="${book.price}" type="number" pattern="#,##0.000" /> VND
+                    </p>
                 </div>
             </div>
         </div>
+        <%
+            }
+        %>
 
         <!-- Phương thức thanh toán -->
         <div class="mt-4">
@@ -320,11 +356,12 @@
                 </div>
             </form>
         </div>
+    </div>
 
         <!-- Nút điều hướng -->
         <div class="mt-4 d-flex justify-content-center gap-4">
             <button type="button" class="btn btn-secondary">Quay lại</button>
-            <button type="submit" class="btn btn-danger">Thanh toán</button>
+            <button type="submit" class="btn btn-danger" onclick="handlePayment()">Thanh toán</button>
         </div>
     </div>
 </div>
@@ -333,24 +370,49 @@
     <p class="mb-0">© 2024 Cửa hàng của bạn. All Rights Reserved.</p>
 </footer>
 
-<!-- JavaScript -->
 <script>
+    // Danh sách tỉnh/thành phố
+    const cities = {
+        "Hà Nội": ["Ba Đình", "Hoàn Kiếm", "Hai Bà Trưng", "Đống Đa"],
+        "TP. Hồ Chí Minh": ["Quận 1", "Quận 3", "Quận 5", "Quận 7"],
+        "Đà Nẵng": ["Hải Châu", "Thanh Khê", "Sơn Trà", "Ngũ Hành Sơn"]
+    };
+
+    // Danh sách quận/huyện và phường/xã
+    const wards = {
+        "Ba Đình": ["Phường Phúc Xá", "Phường Trúc Bạch", "Phường Liễu Giai"],
+        "Hoàn Kiếm": ["Phường Hàng Bạc", "Phường Hàng Đào", "Phường Tràng Tiền"],
+        "Quận 1": ["Phường Bến Nghé", "Phường Bến Thành", "Phường Nguyễn Thái Bình"],
+        "Hải Châu": ["Phường Hải Châu 1", "Phường Hải Châu 2", "Phường Thanh Bình"]
+    };
+
+    // Hàm cập nhật danh sách tỉnh/thành phố
+    function updateCities() {
+        const citySelect = document.getElementById("city");
+        for (const city in cities) {
+            let option = new Option(city, city);
+            citySelect.add(option);
+        }
+    }
+
+    // Hàm cập nhật danh sách quận/huyện khi chọn tỉnh/thành phố
     function updateDistricts() {
         const city = document.getElementById("city").value;
         const districtSelect = document.getElementById("district");
-        districtSelect.innerHTML = "<option selected>-- Chọn quận huyện --</option>";
+        districtSelect.innerHTML = "<option selected>-- Chọn quận/huyện --</option>";
 
-        if (districts[city]) {
-            districts[city].forEach(district => {
+        if (cities[city]) {
+            cities[city].forEach(district => {
                 let option = new Option(district, district);
                 districtSelect.add(option);
             });
         }
 
-        // Reset phường/xã
+        // Reset danh sách phường/xã
         updateWards();
     }
 
+    // Hàm cập nhật danh sách phường/xã khi chọn quận/huyện
     function updateWards() {
         const district = document.getElementById("district").value;
         const wardSelect = document.getElementById("ward");
@@ -363,6 +425,58 @@
             });
         }
     }
+
+    // Gọi hàm cập nhật danh sách tỉnh/thành phố khi tải trang
+    updateCities();
+
+    function handlePayment() {
+        // Lấy phương thức thanh toán được chọn
+        let paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').id;
+
+        if (paymentMethod === "cod") {
+            // Thanh toán khi nhận hàng -> Hiển thị xác nhận
+            alert("Đơn hàng của bạn đã được đặt thành công! Vui lòng nhận hàng và thanh toán khi giao hàng.");
+        } else if (paymentMethod === "bankTransfer") {
+            alert("Đơn hàng của bạn đã được đặt thành công! Vui lòng chờ ngày nhận hàng.");
+        }
+
+        // Đặt lại toàn bộ giá trị của form
+        document.getElementById("checkoutForm").reset();
+    }
+
+
+    function validateEmail() {
+        let emailInput = document.getElementById("email");
+        let emailError = document.getElementById("emailError");
+        let emailValue = emailInput.value.trim();
+
+        if (!emailValue.endsWith("@gmail.com")) {
+            emailError.textContent = "Vui lòng nhập email có đuôi @gmail.com";
+            emailInput.classList.add("is-invalid");
+        } else {
+            emailError.textContent = "";
+            emailInput.classList.remove("is-invalid");
+        }
+    }
+
+    function validatePhone() {
+        let phoneInput = document.getElementById("phone");
+        let phoneError = document.getElementById("phoneError");
+        let phoneValue = phoneInput.value.trim();
+
+        // Kiểm tra nếu không phải số hoặc rỗng
+        if (!/^\d*$/.test(phoneValue)) {
+            phoneError.textContent = "Vui lòng chỉ nhập số, đủ 10 số.";
+            phoneInput.classList.add("is-invalid");
+        } else {
+            phoneError.textContent = "";
+            phoneInput.classList.remove("is-invalid");
+        }
+    }
+
+
+
+
 </script>
 
 
