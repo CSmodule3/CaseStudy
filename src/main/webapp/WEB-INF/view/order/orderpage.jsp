@@ -237,7 +237,7 @@
                 <div class="d-flex">
                     <img src="https://via.placeholder.com/50" class="me-3" alt="Sản phẩm">
                     <div>
-                        <p class="mb-1">Tên sách</p>
+                        <p class="mb-1" >Tên sách</p>
                         <strong>0đ</strong>
                     </div>
                 </div>

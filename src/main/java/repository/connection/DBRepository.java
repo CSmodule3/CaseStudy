@@ -1,4 +1,4 @@
-package repository;
+package repository.connection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,6 +8,20 @@ public class DBRepository {
     private static final String jdbcURL = "jdbc:mysql://localhost:3306/bookstoredb";
     private static final String jdbcUsername = "root";
     private static final String jdbcPassword = "159357bapD";
+
+
+    public static void main(String[] args) {
+        try (Connection conn = getConnection()) {
+            if (conn != null) {
+                System.out.println("Kết nối MySQL thành công!");
+            } else {
+                System.out.println("Không thể kết nối đến MySQL!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     static {
         try {

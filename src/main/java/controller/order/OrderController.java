@@ -1,7 +1,7 @@
 package controller.order;
 
 import model.Order;
-import service.impl.order.OrderService;
+import service.impl.OrderService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +18,6 @@ public class OrderController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<Order> orders = OrderService.getAll();
         request.setAttribute("orders", orders);
-        request.getRequestDispatcher("WEB-INF/view/orderpage.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/view/order/orderpage.jsp").forward(request, response);
     }
 }

@@ -2,7 +2,7 @@ package repository.order;
 
 import model.Order;
 import model.OrderDetail;
-import repository.DBRepository;
+import repository.connection.DBRepository;
 
 import java.sql.*;
 import java.util.ArrayList;

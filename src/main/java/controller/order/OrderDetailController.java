@@ -1,8 +1,8 @@
 package controller.order;
 
 import model.OrderDetail;
+import repository.connection.DBRepository;
 import service.impl.OrderDetail.OrderDetailService;
-import repository.DBRepository;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -50,7 +50,7 @@ public class OrderDetailController extends HttpServlet {
             throws ServletException, IOException {
         List<OrderDetail> orderDetails = orderDetailService.getAll();
         request.setAttribute("orderDetails", orderDetails);
-        request.getRequestDispatcher("WEB-INF/view/orders-list.jsp").forward(request, response);
+        request.getRequestDispatcher("WEB-INF/view/order/orders-list.jsp").forward(request, response);
     }
 
     private void deleteOrderDetail(HttpServletRequest request, HttpServletResponse response)
@@ -76,10 +76,37 @@ public class OrderDetailController extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("update".equals(action)) {
-            updateOrderDetail(request, response);
-        } else {
-            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED, "Hành động không hợp lệ");
+            String idStr = request.getParameter("id");
+            String orderIdStr = request.getParameter("orderId");
+            String fullName = request.getParameter("fullName");
+            String phoneNumber = request.getParameter("phoneNumber");
+            String address = request.getParameter("address");
+            String status = request.getParameter("status");
+
+            if (idStr == null || idStr.isEmpty() || fullName.isEmpty() || phoneNumber.isEmpty() || address.isEmpty()) {
+                request.setAttribute("error", "Dữ liệu không hợp lệ!");
+                request.getRequestDispatcher("edit-order.jsp").forward(request, response);
+                return;
+            }
+
+            try {
+                int id = Integer.parseInt(idStr);
+                int orderId = Integer.parseInt(orderIdStr);
+
+                // Gọi hàm cập nhật trong OrderDetailService
+                boolean success = orderDetailService.updateOrderDetail(id, orderId, fullName, phoneNumber, address, status);
+                if (success) {
+                    response.sendRedirect("orderDetails?action=list"); // Load lại danh sách
+                } else {
+                    request.setAttribute("error", "Cập nhật thất bại!");
+                    request.getRequestDispatcher("edit-order.jsp").forward(request, response);
+                }
+            } catch (NumberFormatException e) {
+                request.setAttribute("error", "ID không hợp lệ!");
+                request.getRequestDispatcher("edit-order.jsp").forward(request, response);
+            }
         }
+
     }
 
     private void updateOrderDetail(HttpServletRequest request, HttpServletResponse response)

@@ -17,9 +17,28 @@ public class BookController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        List<Book> books = bookService.getAll();
-        req.setAttribute("books",books);
-        req.getRequestDispatcher("WEB-INF/view/listbook.jsp").forward(req, resp);
+        String action = req.getParameter("type");
+        String searchQuery = req.getParameter("query");
+
+        List<Book> books;
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            switch (action) {
+                case "author":
+                    books = bookService.findByAuthor(searchQuery);
+                    break;
+                case "foreign_author":
+                    books = bookService.findByAuthorFr();
+                    break;
+                default:
+                    books = bookService.findByName(searchQuery);
+                    break;
+            }
+        } else {
+            books = bookService.getAll();
+        }
+
+        req.setAttribute("books", books);
+        req.getRequestDispatcher("WEB-INF/view/book/listbook.jsp").forward(req, resp);
     }
 
 }
