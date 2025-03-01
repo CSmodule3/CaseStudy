@@ -18,11 +18,58 @@
 <h2 class="text-center">Danh sách Người Dùng</h2>
 
 <!-- Form tìm kiếm -->
-<form class="d-flex mb-3" action="users" method="get">
-  <input class="form-control me-2" type="text" name="search" placeholder="Nhập tên người dùng..."
+<!-- Form tìm kiếm với class để áp dụng CSS -->
+<form class="search-bar" action="users" method="get">
+  <input class="search-input" type="text" name="search" placeholder="Nhập tên người dùng..."
          value="<%= searchQuery != null ? searchQuery : "" %>">
-  <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+  <button class="search-btn" type="submit">
+    <i class="fas fa-search"></i> <!-- Icon tìm kiếm -->
+  </button>
 </form>
+
+<!-- Nhúng Font Awesome để có icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<!-- CSS ngay bên dưới -->
+<style>
+  /* Ô tìm kiếm */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #FFA500;
+    max-width: 500px;
+    margin: auto;
+    padding: 5px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background-color: #fff;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .search-btn {
+    background-color: #FFA500;
+    border: none;
+    padding: 10px 15px;
+    color: white;
+    cursor: pointer;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+  }
+
+  .search-btn i {
+    font-size: 18px;
+  }
+</style>
+
 
 <table class="table table-bordered">
   <thead class="table-dark">
@@ -31,6 +78,7 @@
     <th>Username</th>
     <th>Email</th>
     <th>Role ID</th>
+    <th>Trạng thái</th> <!-- Thêm cột trạng thái -->
     <th>Hành động</th>
   </tr>
   </thead>
@@ -42,21 +90,26 @@
     <td><%= u.getEmail() %></td>
     <td><%= u.getRoleId() %></td>
     <td>
-      <!-- Nút sửa -->
+      <% if (u.getStatus() == 1) { %>
+      <span class="badge bg-success">Hoạt động</span>
+      <% } else { %>
+      <span class="badge bg-danger">Bị ẩn</span>
+      <% } %>
+    </td>
+    <td>
       <button class="btn btn-warning btn-sm" onclick="openEditModal(<%= u.getId() %>, '<%= u.getUsername() %>', '<%= u.getEmail() %>', <%= u.getRoleId() %>)">
         Sửa
       </button>
-
-      <!-- Form xóa -->
       <form action="users" method="post" class="d-inline">
         <input type="hidden" name="id" value="<%= u.getId() %>">
         <input type="hidden" name="action" value="delete">
-        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc muốn ẩn người dùng này?')">Ẩn</button>
       </form>
     </td>
   </tr>
   <% } %>
   </tbody>
+
 </table>
 
 <!-- Modal chỉnh sửa -->

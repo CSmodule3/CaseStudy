@@ -6,6 +6,7 @@ public class User {
     private String password;
     private String email;
     private int roleId;
+    private int status;
 
     public User() {}
 
@@ -18,13 +19,30 @@ public class User {
         this.roleId = roleId;
     }
 
+    // Constructor đầy đủ
+    public User(int id, String username, String password, String email, int roleId, int status) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.roleId = roleId;
+        this.status = status;
+    }
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    // Constructor KHÔNG có password (để dùng trong getAll())
     public User(int id, String username, String email, int roleId) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.roleId = roleId;
+        this.status = 1;
     }
+
 
     public User(String username, String password, String email) {
         this.username = username;
@@ -70,5 +88,14 @@ public class User {
 
     public void setRoleId(int roleId) {
         this.roleId = roleId;
+    }
+
+    // Getter và Setter cho status
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

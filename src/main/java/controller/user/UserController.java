@@ -1,7 +1,7 @@
 package controller.user;
 
 import model.User;
-import service.impl.users.UserServiceImpl;
+import service.impl.UserService;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @WebServlet(name = "UserController", urlPatterns = "/users")
 public class UserController extends HttpServlet {
-    private UserServiceImpl userService = new UserServiceImpl();
+    private UserService userService = new UserService();
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String searchQuery = request.getParameter("search");
@@ -42,7 +42,8 @@ public class UserController extends HttpServlet {
             String email = request.getParameter("email");
             int roleId = Integer.parseInt(request.getParameter("role_id"));
 
-            User user = new User(userId, username, "", email, roleId);
+            User user = new User(userId, username, "", email, roleId, 1);
+
             userService.update(userId, user);
         }
 
