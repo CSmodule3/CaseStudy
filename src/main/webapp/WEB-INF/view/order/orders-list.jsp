@@ -355,13 +355,13 @@
                 ${orderDetail.status}
             </span>
           </td>
+
           <td>
             <button class="btn btn-warning btn-sm editBtn">
                 <a href="orderDetails?action=edit&id=${orderDetail.id}" class="btn btn-warning btn-sm">
                   Sửa
                 </a>
             </button>
-
             <a href="orderDetails?action=delete&id=${orderDetail.id}" class="btn btn-danger btn-sm"
                onclick="return confirm('Bạn có chắc chắn muốn xóa chi tiết đơn hàng này?')">
               Xóa

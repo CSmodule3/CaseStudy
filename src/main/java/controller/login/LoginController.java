@@ -60,13 +60,11 @@ public class LoginController extends HttpServlet {
                 System.out.println("Số lượng users sau khi đăng nhập: " + users.size()); // Debug log
                 session.setAttribute("users", users);
             }
-
             response.sendRedirect("/book"); // Chuyển hướng tới danh sách sách
         } else {
             response.sendRedirect("login?error=1");
         }
     }
-
 
     private void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userName = request.getParameter("username");
